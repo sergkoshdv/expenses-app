@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Расходы</title>
 
   <style>
@@ -20,40 +20,49 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      height: 100vh;
+    }
+
+    body {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 8px;
     }
 
     .card {
       width: 100%;
       max-width: 420px;
+      max-height: 90vh; /* карточка не превышает высоту экрана */
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      padding: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .title {
       font-size: 18px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      text-align: center;
     }
 
     .field {
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .field input {
       width: 100%;
-      padding: 14px 16px;
+      padding: 12px 14px;
       font-size: 18px;
       border-radius: 12px;
       border: 1px solid #e5e7eb;
@@ -65,13 +74,13 @@
     }
 
     .amount input {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 600;
     }
 
     button {
       width: 100%;
-      padding: 16px;
+      padding: 14px;
       font-size: 18px;
       font-weight: 600;
       border: none;
@@ -79,6 +88,7 @@
       background: var(--accent);
       color: white;
       cursor: pointer;
+      margin-top: 4px;
     }
 
     button:active {
@@ -87,9 +97,9 @@
 
     .hint {
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
-      margin-top: 10px;
+      margin-top: 6px;
     }
   </style>
 </head>
@@ -98,7 +108,6 @@
   <div class="card">
     <div class="title">Новый расход</div>
 
-    <!-- Форма отправки напрямую в Google Apps Script -->
     <form id="form" action="https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec" method="post" target="hidden_iframe">
       <div class="field amount">
         <input type="number" id="amount" name="amount" placeholder="Сумма" inputmode="decimal" required />
@@ -119,7 +128,6 @@
     <div class="hint">1 тап · 5 секунд · всё сохранено</div>
   </div>
 
-  <!-- Скрытый iframe, чтобы форма не перезагружала страницу -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
 
   <script>
@@ -127,7 +135,6 @@
     const categoryInput = document.getElementById("category");
     const datalist = document.getElementById("categories");
 
-    // Загружаем категории из localStorage
     let categories = JSON.parse(localStorage.getItem("cats") || "[]");
 
     function renderCategories() {
@@ -142,7 +149,6 @@
     renderCategories();
     amountInput.focus();
 
-    // Сохраняем новые категории при вводе
     document.getElementById("form").addEventListener("submit", () => {
       const category = categoryInput.value.trim();
       if (category && !categories.includes(category)) {
@@ -150,7 +156,7 @@
         localStorage.setItem("cats", JSON.stringify(categories));
         renderCategories();
       }
-      // Очищаем поля после отправки
+
       setTimeout(() => {
         amountInput.value = "";
         categoryInput.value = "";
