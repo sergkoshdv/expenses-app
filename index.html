@@ -22,8 +22,7 @@
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       height: 100vh;
@@ -38,7 +37,7 @@
       max-width: 420px;
       background: var(--card);
       border-radius: var(--radius);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       padding: 20px;
     }
 
@@ -99,33 +98,19 @@
   <div class="card">
     <div class="title">Новый расход</div>
 
-    <form id="form">
+    <!-- Форма отправки напрямую в Google Apps Script -->
+    <form id="form" action="https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec" method="post" target="hidden_iframe">
       <div class="field amount">
-        <input
-          type="number"
-          id="amount"
-          placeholder="Сумма"
-          inputmode="decimal"
-          required
-        />
+        <input type="number" id="amount" name="amount" placeholder="Сумма" inputmode="decimal" required />
       </div>
 
       <div class="field">
-        <input
-          list="categories"
-          id="category"
-          placeholder="Категория"
-          required
-        />
+        <input list="categories" id="category" name="category" placeholder="Категория" required />
         <datalist id="categories"></datalist>
       </div>
 
       <div class="field">
-        <input
-          type="text"
-          id="comment"
-          placeholder="Комментарий (необязательно)"
-        />
+        <input type="text" id="comment" name="comment" placeholder="Комментарий (необязательно)" />
       </div>
 
       <button type="submit">Добавить</button>
@@ -134,20 +119,20 @@
     <div class="hint">1 тап · 5 секунд · всё сохранено</div>
   </div>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec";
+  <!-- Скрытый iframe, чтобы форма не перезагружала страницу -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
 
+  <script>
     const amountInput = document.getElementById("amount");
     const categoryInput = document.getElementById("category");
-    const commentInput = document.getElementById("comment");
-    const form = document.getElementById("form");
     const datalist = document.getElementById("categories");
 
+    // Загружаем категории из localStorage
     let categories = JSON.parse(localStorage.getItem("cats") || "[]");
 
     function renderCategories() {
       datalist.innerHTML = "";
-      categories.forEach((c) => {
+      categories.forEach(c => {
         const option = document.createElement("option");
         option.value = c;
         datalist.appendChild(option);
@@ -157,29 +142,21 @@
     renderCategories();
     amountInput.focus();
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const amount = amountInput.value.trim();
+    // Сохраняем новые категории при вводе
+    document.getElementById("form").addEventListener("submit", () => {
       const category = categoryInput.value.trim();
-      const comment = commentInput.value.trim();
-
-      if (!amount || !category) return;
-
-      if (!categories.includes(category)) {
+      if (category && !categories.includes(category)) {
         categories.push(category);
         localStorage.setItem("cats", JSON.stringify(categories));
         renderCategories();
       }
-
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, category, comment }),
-      });
-
-      form.reset();
-      amountInput.focus();
+      // Очищаем поля после отправки
+      setTimeout(() => {
+        amountInput.value = "";
+        categoryInput.value = "";
+        document.getElementById("comment").value = "";
+        amountInput.focus();
+      }, 100);
     });
   </script>
 </body>
