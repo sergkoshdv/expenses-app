@@ -1,6 +1,186 @@
-<form action="https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec" method="post">
-  <label>Сумма: <input name="amount" type="number"></label><br>
-  <label>Категория: <input name="category" type="text"></label><br>
-  <label>Комментарий: <input name="comment" type="text"></label><br>
-  <button type="submit">Добавить расход</button>
-</form>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Расходы</title>
+
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+    }
+
+    .amount input {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+    }
+
+    button:active {
+      opacity: 0.9;
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="title">Новый расход</div>
+
+    <form id="form">
+      <div class="field amount">
+        <input
+          type="number"
+          id="amount"
+          placeholder="Сумма"
+          inputmode="decimal"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <input
+          list="categories"
+          id="category"
+          placeholder="Категория"
+          required
+        />
+        <datalist id="categories"></datalist>
+      </div>
+
+      <div class="field">
+        <input
+          type="text"
+          id="comment"
+          placeholder="Комментарий (необязательно)"
+        />
+      </div>
+
+      <button type="submit">Добавить</button>
+    </form>
+
+    <div class="hint">1 тап · 5 секунд · всё сохранено</div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec";
+
+    const amountInput = document.getElementById("amount");
+    const categoryInput = document.getElementById("category");
+    const commentInput = document.getElementById("comment");
+    const form = document.getElementById("form");
+    const datalist = document.getElementById("categories");
+
+    let categories = JSON.parse(localStorage.getItem("cats") || "[]");
+
+    function renderCategories() {
+      datalist.innerHTML = "";
+      categories.forEach((c) => {
+        const option = document.createElement("option");
+        option.value = c;
+        datalist.appendChild(option);
+      });
+    }
+
+    renderCategories();
+    amountInput.focus();
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const amount = amountInput.value.trim();
+      const category = categoryInput.value.trim();
+      const comment = commentInput.value.trim();
+
+      if (!amount || !category) return;
+
+      if (!categories.includes(category)) {
+        categories.push(category);
+        localStorage.setItem("cats", JSON.stringify(categories));
+        renderCategories();
+      }
+
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, category, comment }),
+      });
+
+      form.reset();
+      amountInput.focus();
+    });
+  </script>
+</body>
+</html>
