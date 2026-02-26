@@ -39,7 +39,7 @@
     .card {
       width: 100%;
       max-width: 420px;
-      max-height: 90vh; /* карточка не превышает высоту экрана */
+      max-height: 90vh;
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
@@ -108,7 +108,7 @@
   <div class="card">
     <div class="title">Новый расход</div>
 
-    <form id="form" action="https://script.google.com/macros/s/AKfycbz4DxBN86XwNICi0yU4ggLpBCGsn39f3Hj7IIlMYYJRufcAAs2QyQNR498MdX5ZLKoV/exec" method="post" target="hidden_iframe">
+    <form id="form" action="ВСТАВЬ_СЮДА_URL_СКРИПТА" method="post" target="hidden_iframe">
       <div class="field amount">
         <input type="number" id="amount" name="amount" placeholder="Сумма" inputmode="decimal" required />
       </div>
@@ -124,6 +124,8 @@
 
       <button type="submit">Добавить</button>
     </form>
+
+    <div class="hint">1 тап · 5 секунд · всё сохранено</div>
   </div>
 
   <iframe name="hidden_iframe" style="display:none;"></iframe>
@@ -133,6 +135,7 @@
     const categoryInput = document.getElementById("category");
     const datalist = document.getElementById("categories");
 
+    // Загружаем категории из localStorage
     let categories = JSON.parse(localStorage.getItem("cats") || "[]");
 
     function renderCategories() {
@@ -147,6 +150,7 @@
     renderCategories();
     amountInput.focus();
 
+    // Сохраняем новую категорию при отправке формы
     document.getElementById("form").addEventListener("submit", () => {
       const category = categoryInput.value.trim();
       if (category && !categories.includes(category)) {
@@ -155,6 +159,7 @@
         renderCategories();
       }
 
+      // Очищаем поля после отправки и автофокус
       setTimeout(() => {
         amountInput.value = "";
         categoryInput.value = "";
